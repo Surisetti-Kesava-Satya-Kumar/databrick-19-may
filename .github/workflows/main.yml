@@ -42,22 +42,22 @@ jobs:
          python -m pip install --upgrade pip
          pip install databricks-api
          
-      - name: Extract access_token
-        id: extract-value
-        run: |
-         ACCESS_TOKEN=$(curl -X POST -H 'Content-Type: application/x-www-form-urlencoded' \
-         https://login.microsoftonline.com/${{ secrets.AZURE_TENANT_ID }}/oauth2/v2.0/token \
-         -d "client_id=${{ env.ARM_CLIENT_ID }}" \
-         -d "grant_type=client_credentials" \
-         -d "scope=2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default" \
-         -d "client_secret=${{ env.ARM_CLIENT_SECRET }}" | jq -r '.access_token')
-         echo "::set-output name=access_token::$ACCESS_TOKEN"
+#       - name: Extract access_token
+#         id: extract-value
+#         run: |
+#          ACCESS_TOKEN=$(curl -X POST -H 'Content-Type: application/x-www-form-urlencoded' \
+#          https://login.microsoftonline.com/${{ secrets.AZURE_TENANT_ID }}/oauth2/v2.0/token \
+#          -d "client_id=${{ env.ARM_CLIENT_ID }}" \
+#          -d "grant_type=client_credentials" \
+#          -d "scope=2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default" \
+#          -d "client_secret=${{ env.ARM_CLIENT_SECRET }}" | jq -r '.access_token')
+#          echo "::set-output name=access_token::$ACCESS_TOKEN"
          
       - name: Trigger notebook
         uses: databricks/run-notebook@v0
         with:
           databricks-host: ${{env.databrickshost}}
-          databricks-token: ${{ steps.extract-value.outputs.access_token}}
+          databricks-token: dapi35bc528e56c53efb3f9e39b0682524e2
           local-notebook-path: ${{env.localpath}}
           # The cluster JSON below is for AWS workspaces. On Azure and GCP, set
           # node_type_id to an appropriate node type, e.g. "Standard_D3_v2" for
