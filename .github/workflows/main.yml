@@ -52,13 +52,18 @@ jobs:
 #          -d "scope=2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default" \
 #          -d "client_secret=${{ env.ARM_CLIENT_SECRET }}" | jq -r '.access_token')
 #          echo "::set-output name=access_token::$ACCESS_TOKEN"
-         
+      - name: List notebook files
+        id: list-files
+        run: |
+          # Fetch all notebook files within the specified folder
+          notebooks=$(find ./databricks/notebooks/${{ github.event.inputs.NoteBook-Path }} -name "*.py" -type f)
+          echo "::set-output name=notebooks::$notebooks"
       - name: Trigger notebook
         uses: databricks/run-notebook@v0
         with:
           databricks-host: ${{env.databrickshost}}
           databricks-token: dapi6100481f69a16a4b9badf69b66d2583f-3
-          local-notebook-path: ${{env.localpath}}
+          local-notebook-path: ${{ steps.list-files.outputs.notebooks }}
           # The cluster JSON below is for AWS workspaces. On Azure and GCP, set
           # node_type_id to an appropriate node type, e.g. "Standard_D3_v2" for
           # Azure or "n1-highmem-4" for GCP
