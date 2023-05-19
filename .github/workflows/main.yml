@@ -1,0 +1,84 @@
+name: RAMS Run Databrick Notebook
+'on':
+  workflow_dispatch: 
+   inputs:
+      ENV:
+        type: choice
+        required: true
+        description: Environment Name
+        options:
+          - SIT          
+          - UAT
+          - PRD
+      NoteBook-Path:
+        type: string
+        description: Enter notebook path in repo
+     # NoteBook:
+     #   type: string
+      #  description: Enter repo notebook (.py,.sql)
+jobs:
+  stage:
+    #if: github.ref == 'refs/heads/anil_dev' && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: '${{ github.event.inputs.ENV }}'
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_SP_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_SP_CLIENT_SECRET }}
+      databrickshost:  ${{vars.databrickshost}} 
+      localpath: ./databricks/notebooks/${{ github.event.inputs.NoteBook-Path }}
+      workspace-path: /RAMS/${{ github.event.inputs.NoteBook-Path }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+    
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+         python-version: '3.x'
+
+    # Install Python dependencies
+      - name: Install dependencies
+        run: |
+         python -m pip install --upgrade pip
+         pip install databricks-api
+         
+      - name: Extract access_token
+        id: extract-value
+        run: |
+         ACCESS_TOKEN=$(curl -X POST -H 'Content-Type: application/x-www-form-urlencoded' \
+         https://login.microsoftonline.com/${{ secrets.AZURE_TENANT_ID }}/oauth2/v2.0/token \
+         -d "client_id=${{ env.ARM_CLIENT_ID }}" \
+         -d "grant_type=client_credentials" \
+         -d "scope=2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default" \
+         -d "client_secret=${{ env.ARM_CLIENT_SECRET }}" | jq -r '.access_token')
+         echo "::set-output name=access_token::$ACCESS_TOKEN"
+         
+      - name: Trigger notebook
+        uses: databricks/run-notebook@v0
+        with:
+          databricks-host: ${{env.databrickshost}}
+          databricks-token: ${{ steps.extract-value.outputs.access_token}}
+          local-notebook-path: ${{env.localpath}}
+          # The cluster JSON below is for AWS workspaces. On Azure and GCP, set
+          # node_type_id to an appropriate node type, e.g. "Standard_D3_v2" for
+          # Azure or "n1-highmem-4" for GCP
+          new-cluster-json: >
+           {            
+           "spark_version": "9.1.x-scala2.12",           
+            "node_type_id": "Standard_DS3_v2",
+            "num_workers": 1 
+           }
+          # Grant users in the "devops" group view permission on the
+          # notebook results
+         #"group_name": "AZ-SIT-RAMS-MX-CON", "user_name": "v-anil.mummana@metrolinx.com",
+          access-control-list-json: >
+            [
+            {
+                "group_name": "AZ-${{ github.event.inputs.ENV }}-RAMS-MX-CON",
+                "permission_level": "CAN_VIEW"
+              }
+            ]         
+     
+      
+ 
+      
