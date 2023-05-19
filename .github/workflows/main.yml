@@ -68,17 +68,6 @@ jobs:
             "node_type_id": "Standard_DS3_v2",
             "num_workers": 1 
            }
-          # Grant users in the "devops" group view permission on the
-          # notebook results
-         #"group_name": "AZ-SIT-RAMS-MX-CON", "user_name": "v-anil.mummana@metrolinx.com",
-          access-control-list-json: >
-            [
-            {
-                "group_name": "AZ-${{ github.event.inputs.ENV }}-RAMS-MX-CON",
-                "permission_level": "CAN_VIEW"
-              }
-            ]         
-     
       
  
       
