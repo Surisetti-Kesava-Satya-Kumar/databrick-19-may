@@ -24,7 +24,7 @@ jobs:
     env:
       ARM_CLIENT_ID: ${{ secrets.AZURE_SP_CLIENT_ID }}
       ARM_CLIENT_SECRET: ${{ secrets.AZURE_SP_CLIENT_SECRET }}
-      databrickshost:  https://adb-1200883768516999.19.azuredatabricks.net
+      databrickshost:  https://adb-2591273465045609.9.azuredatabricks.net
       localpath: ./databricks/notebooks/${{ github.event.inputs.NoteBook-Path }}
       workspace-path: /RAMS/${{ github.event.inputs.NoteBook-Path }}
     steps:
@@ -57,7 +57,7 @@ jobs:
         uses: databricks/run-notebook@v0
         with:
           databricks-host: ${{env.databrickshost}}
-          databricks-token: dapi2decf958e5a24dd20a81729505413450-3
+          databricks-token: dapi6100481f69a16a4b9badf69b66d2583f-3
           local-notebook-path: ${{env.localpath}}
           # The cluster JSON below is for AWS workspaces. On Azure and GCP, set
           # node_type_id to an appropriate node type, e.g. "Standard_D3_v2" for
