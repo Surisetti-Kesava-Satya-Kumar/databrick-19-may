@@ -24,7 +24,7 @@ jobs:
     env:
       ARM_CLIENT_ID: ${{ secrets.AZURE_SP_CLIENT_ID }}
       ARM_CLIENT_SECRET: ${{ secrets.AZURE_SP_CLIENT_SECRET }}
-      databrickshost:  ${{vars.databrickshost}} 
+      databrickshost:  https://adb-8650928231756285.5.azuredatabricks.net
       localpath: ./databricks/notebooks/${{ github.event.inputs.NoteBook-Path }}
       workspace-path: /RAMS/${{ github.event.inputs.NoteBook-Path }}
     steps:
